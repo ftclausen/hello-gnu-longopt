@@ -7,20 +7,21 @@ import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
 public class App {
-  public String getGreeting() {
-    return "Hello world.";
-  }
 
   public static void main(String[] argv) {
-    System.out.println(new App().getGreeting());
+    for (String arg: argv) {
+      System.out.println("Raw option: " + arg);
+    }
+
     int c;
     String arg;
-    LongOpt[] longopts = new LongOpt[3];
+    LongOpt[] longopts = new LongOpt[4];
     //
     StringBuffer sb = new StringBuffer();
     longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
     longopts[1] = new LongOpt("outputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'o');
-    longopts[2] = new LongOpt("maximum", LongOpt.OPTIONAL_ARGUMENT, null, 2);
+    longopts[2] = new LongOpt("inputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'i');
+    longopts[3] = new LongOpt("maximum", LongOpt.OPTIONAL_ARGUMENT, null, 2);
     //
     Getopt g = new Getopt("testprog", argv, "-:bc::d:hW;", longopts);
     g.setOpterr(false); // We'll do our own error handling
@@ -29,8 +30,8 @@ public class App {
       switch (c) {
         case 0:
           arg = g.getOptarg();
-          System.out.println("Got long option with value '" +
-              (char) (new Integer(sb.toString())).intValue()
+          System.out.println("Got long option with short name '" +
+              (char) (Integer.valueOf(sb.toString())).intValue()
               + "' with argument " +
               ((arg != null) ? arg : "null"));
           break;
@@ -66,6 +67,10 @@ public class App {
           System.out.println("I see you asked for help");
           break;
         //
+        case 'o':
+          arg = g.getOptarg();
+          System.out.println("Short version of longopt --outputdir received with arg: " + arg);
+          break;
         case 'W':
           System.out.println("Hmmm. You tried a -W with an incorrect long " +
               "option name");
