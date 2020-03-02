@@ -9,89 +9,34 @@ import gnu.getopt.LongOpt;
 public class App {
 
   public static void main(String[] argv) {
-    for (String arg: argv) {
+    for (String arg : argv) {
       System.out.println("Raw option: " + arg);
     }
 
-    int c;
-    String arg;
-    LongOpt[] longopts = new LongOpt[4];
-    //
-    StringBuffer sb = new StringBuffer();
-    longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-    longopts[1] = new LongOpt("outputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'o');
-    longopts[2] = new LongOpt("inputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'i');
-    longopts[3] = new LongOpt("maximum", LongOpt.OPTIONAL_ARGUMENT, null, 2);
-    //
-    Getopt g = new Getopt("testprog", argv, "-:bc::d:hW;", longopts);
-    g.setOpterr(false); // We'll do our own error handling
-    //
-    while ((c = g.getopt()) != -1)
+    LongOpt[] longOpts = {new LongOpt("destination", LongOpt.REQUIRED_ARGUMENT, null, 'd'),
+        new LongOpt("delay-milliseconds", LongOpt.REQUIRED_ARGUMENT,null, 'w'),
+        new LongOpt("dry-run", LongOpt.NO_ARGUMENT, null, 'n')};
+    Getopt opt = new Getopt("RedisMigration", argv, "d:w:n", longOpts);
+
+    int c = -1;
+    while ((c = opt.getopt()) != -1) {
       switch (c) {
-        case 0:
-          arg = g.getOptarg();
-          System.out.println("Got long option with short name '" +
-              (char) (Integer.valueOf(sb.toString())).intValue()
-              + "' with argument " +
-              ((arg != null) ? arg : "null"));
+        case 'n':
+          System.out.println("Dry run");
           break;
-        //
-        case 1:
-          System.out.println("I see you have return in order set and that " +
-              "a non-option argv element was just found " +
-              "with the value '" + g.getOptarg() + "'");
-          break;
-        //
-        case 2:
-          arg = g.getOptarg();
-          System.out.println("I know this, but pretend I didn't");
-          System.out.println("We picked option " +
-              longopts[g.getLongind()].getName() +
-              " with value " +
-              ((arg != null) ? arg : "null"));
-          break;
-        //
-        case 'b':
-          System.out.println("You picked plain old option " + (char) c);
-          break;
-        //
-        case 'c':
         case 'd':
-          arg = g.getOptarg();
-          System.out.println("You picked option '" + (char) c +
-              "' with argument " +
-              ((arg != null) ? arg : "null"));
+          String destination = opt.getOptarg();
+          System.out.println("Destination: " + destination);
           break;
-        //
-        case 'h':
-          System.out.println("I see you asked for help");
-          break;
-        //
-        case 'o':
-          arg = g.getOptarg();
-          System.out.println("Short version of longopt --outputdir received with arg: " + arg);
-          break;
-        case 'W':
-          System.out.println("Hmmm. You tried a -W with an incorrect long " +
-              "option name");
-          break;
-        //
-        case ':':
-          System.out.println("Doh! You need an argument for option " +
-              (char) g.getOptopt());
-          break;
-        //
-        case '?':
-          System.out.println("The option '" + (char) g.getOptopt() +
-              "' is not valid");
-          break;
-        //
-        default:
-          System.out.println("getopt() returned " + c);
-          break;
+        case 'w':
+          try {
+            int delay = Integer.parseInt(opt.getOptarg());
+            System.out.println("delay arg is: " + delay);
+          } catch (NumberFormatException e) {
+            System.out.println("Please specify valid number");
+            System.exit(1);
+          }
       }
-    //
-    for (int i = g.getOptind(); i < argv.length; i++)
-      System.out.println("Non option argv element: " + argv[i] + "\n");
+    }
   }
 }
